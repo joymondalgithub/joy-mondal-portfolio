@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     canonical: 'https://joymondal.com',
   },
   icons: {
-    icon: '/joy-mondal.webp',
-    apple: '/joy-mondal.webp',
+    icon: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
+    apple: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
   },
   openGraph: {
     title: 'Joy Mondal | Digital Marketing & Web Design Specialist',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/joy-mondal.webp',
+        url: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
         width: 1200,
         height: 1500,
         alt: 'Joy Mondal GROWTH',
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     title: 'Joy Mondal | Digital Marketing & Web Design Specialist',
     description:
       'Joy Mondal helps businesses across every industry and country worldwide grow with digital marketing, web design, SEO, AEO, GEO, paid advertising, and policy-compliant reputation management.',
-    images: ['/joy-mondal.webp'],
+    images: ['https://iamjoymondal.netlify.app/joy-mondal.webp'],
   },
 };
 
@@ -80,7 +80,7 @@ const jsonLdData = {
       '@id': 'https://joymondal.com/#person',
       name: 'Joy Mondal',
       url: 'https://joymondal.com',
-      image: 'https://joymondal.com/joy-mondal.webp',
+      image: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
       jobTitle: 'Web Architecture, SEO & AI Search Growth Consultant',
       description:
         'Joy Mondal is a digital growth consultant specializing in bespoke website architecture, SEO, AEO, GEO, high-ROI Google & Meta ads, and multi-platform reputation management for businesses worldwide.',
@@ -103,7 +103,7 @@ const jsonLdData = {
       '@id': 'https://joymondal.com/#service',
       name: 'Joy Mondal Digital Consulting',
       url: 'https://joymondal.com',
-      image: 'https://joymondal.com/joy-mondal.webp',
+      image: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
       telephone: '+91-7980941101',
       priceRange: '$$$',
       areaServed: [

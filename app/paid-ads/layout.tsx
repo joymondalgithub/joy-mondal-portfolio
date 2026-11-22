@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description:
       'Audited advertising performance across Google PPC, Meta (Facebook/Instagram), negative-keyword gating, and call conversion funnels engineered by Joy Mondal.',
     url: 'https://joymondal.com/paid-ads',
-    images: ['/joy-mondal.webp'],
+    images: ['https://iamjoymondal.netlify.app/joy-mondal.webp'],
   },
 };
 

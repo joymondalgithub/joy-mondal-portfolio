@@ -98,7 +98,7 @@ export default function AboutSection() {
             <div className="relative rounded-2xl overflow-hidden border border-[#E3DCD0] hover:border-[#D4AF37]/60 bg-[#FFFFFF] shadow-md transition-all">
               <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#EFEAE0]">
                 <Image
-                  src="/joy-mondal.webp"
+                  src="https://iamjoymondal.netlify.app/joy-mondal.webp"
                   alt="Joy Mondal - Web Design, SEO, AEO, GEO, Ads & Reputation Specialist"
                   fill
                   sizes="(min-width: 1024px) 40vw, 100vw"

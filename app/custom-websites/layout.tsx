@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description:
       'High-converting bespoke website design & development by Joy Mondal. Sub-second speed, .WebP asset optimization, mobile-first UX, and conversion funnels for global businesses.',
     url: 'https://joymondal.com/custom-websites',
-    images: ['/joy-mondal.webp'],
+    images: ['https://iamjoymondal.netlify.app/joy-mondal.webp'],
   },
 };
 
