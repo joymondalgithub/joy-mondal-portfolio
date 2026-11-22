@@ -614,7 +614,7 @@ function QuoteModalContent({
                 </a>
 
                 <a
-                  href="https://facebook.com/joymondal"
+                  href="https://www.facebook.com/share/1FCjoMoAzP/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-bold transition shadow-sm"
@@ -1026,7 +1026,7 @@ function QuoteModalContent({
               </a>
 
               <a
-                href="https://facebook.com/joymondal"
+                href="https://www.facebook.com/share/1FCjoMoAzP/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex sm:flex-none items-center justify-center gap-2 rounded-full bg-[#1877F2] hover:bg-[#166fe5] px-4 py-3 text-xs sm:text-sm font-bold text-white shadow-md transition"

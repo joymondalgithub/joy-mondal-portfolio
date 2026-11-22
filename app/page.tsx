@@ -301,7 +301,7 @@ export default function HomePage() {
                     <Mail className="w-5 h-5 text-[#C99D55] group-hover:scale-110 transition-transform" />
                   </a>
                   <a
-                    href="https://facebook.com/joymondal"
+                    href="https://www.facebook.com/share/1FCjoMoAzP/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#2B1E15] border border-[#C99D55]/30 text-[#1877F2] hover:border-[#1877F2] hover:bg-[#36261B] flex items-center justify-center transition-all shadow-md group"

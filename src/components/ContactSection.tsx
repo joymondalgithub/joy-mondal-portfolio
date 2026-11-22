@@ -205,7 +205,7 @@ export default function ContactSection({ onOpenQuote }: ContactSectionProps) {
 
               <div className="flex items-center gap-2 shrink-0">
                 <a
-                  href="https://facebook.com/joymondal"
+                  href="https://www.facebook.com/share/1FCjoMoAzP/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-lg border border-[#C99D55]/20 hover:border-[#C99D55]/60 text-[#C99D55] hover:text-[#FAF6F0] bg-[#1C130D] transition-colors"

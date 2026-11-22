@@ -96,7 +96,7 @@ const jsonLdData = {
         'Policy-Compliant Negative Review Removal',
         'Conversion Rate Optimization (CRO)',
       ],
-      sameAs: ['https://wa.me/917980941101', 'https://facebook.com/joymondal'],
+      sameAs: ['https://wa.me/917980941101', 'https://www.facebook.com/share/1FCjoMoAzP/'],
     },
     {
       '@type': 'ProfessionalService',
