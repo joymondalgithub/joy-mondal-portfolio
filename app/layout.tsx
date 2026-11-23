@@ -18,7 +18,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://joymondal.com'),
+  metadataBase: new URL('https://iamjoymondal.netlify.app'),
   title: 'Joy Mondal | Digital Marketing & Web Design Specialist',
   description:
     'Joy Mondal helps businesses across every industry and country worldwide grow with digital marketing, web design, SEO, AEO, GEO, paid advertising, and policy-compliant reputation management.',
@@ -37,11 +37,11 @@ export const metadata: Metadata = {
     'Conversion Rate Optimization CRO',
     'Global Digital Marketing Consultant',
   ],
-  authors: [{ name: 'Joy Mondal', url: 'https://joymondal.com' }],
+  authors: [{ name: 'Joy Mondal', url: 'https://iamjoymondal.netlify.app' }],
   creator: 'Joy Mondal',
   publisher: 'Joy Mondal',
   alternates: {
-    canonical: 'https://joymondal.com',
+    canonical: 'https://iamjoymondal.netlify.app',
   },
   icons: {
     icon: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     title: 'Joy Mondal | Digital Marketing & Web Design Specialist',
     description:
       'Joy Mondal helps businesses across every industry and country worldwide grow with digital marketing, web design, SEO, AEO, GEO, paid advertising, and policy-compliant reputation management.',
-    url: 'https://joymondal.com',
+    url: 'https://iamjoymondal.netlify.app',
     siteName: 'Joy Mondal GROWTH',
     type: 'website',
     images: [
@@ -77,9 +77,9 @@ const jsonLdData = {
   '@graph': [
     {
       '@type': 'Person',
-      '@id': 'https://joymondal.com/#person',
+      '@id': 'https://iamjoymondal.netlify.app/#person',
       name: 'Joy Mondal',
-      url: 'https://joymondal.com',
+      url: 'https://iamjoymondal.netlify.app',
       image: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
       jobTitle: 'Web Architecture, SEO & AI Search Growth Consultant',
       description:
@@ -100,9 +100,9 @@ const jsonLdData = {
     },
     {
       '@type': 'ProfessionalService',
-      '@id': 'https://joymondal.com/#service',
+      '@id': 'https://iamjoymondal.netlify.app/#service',
       name: 'Joy Mondal Digital Consulting',
-      url: 'https://joymondal.com',
+      url: 'https://iamjoymondal.netlify.app',
       image: 'https://iamjoymondal.netlify.app/joy-mondal.webp',
       telephone: '+91-7980941101',
       priceRange: '$$$',
@@ -169,11 +169,11 @@ const jsonLdData = {
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://joymondal.com/#website',
-      url: 'https://joymondal.com',
+      '@id': 'https://iamjoymondal.netlify.app/#website',
+      url: 'https://iamjoymondal.netlify.app',
       name: 'Joy Mondal Portfolio',
       publisher: {
-        '@id': 'https://joymondal.com/#person',
+        '@id': 'https://iamjoymondal.netlify.app/#person',
       },
     },
   ],

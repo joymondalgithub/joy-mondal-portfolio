@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   description:
     'Audited advertising performance across Google PPC, Meta (Facebook/Instagram), negative-keyword gating, and call conversion funnels engineered by Joy Mondal.',
   alternates: {
-    canonical: 'https://joymondal.com/paid-ads',
+    canonical: 'https://iamjoymondal.netlify.app/paid-ads',
   },
   openGraph: {
     title: 'High-ROI Google Ads & Meta Ads Case Studies | Joy Mondal',
     description:
       'Audited advertising performance across Google PPC, Meta (Facebook/Instagram), negative-keyword gating, and call conversion funnels engineered by Joy Mondal.',
-    url: 'https://joymondal.com/paid-ads',
+    url: 'https://iamjoymondal.netlify.app/paid-ads',
     images: ['https://iamjoymondal.netlify.app/joy-mondal.webp'],
   },
 };

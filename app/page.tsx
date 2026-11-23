@@ -371,7 +371,7 @@ export default function HomePage() {
                 {/* Symmetrical Rounded Portrait Frame */}
                 <div className="relative aspect-[4/5] w-full rounded-3xl border border-[#C99D55]/30 bg-gradient-to-b from-[#332419] to-[#221710] shadow-xl overflow-hidden">
                   <Image
-                    src="https://iamjoymondal.netlify.app/joy-mondal.webp"
+                    src="/joy-mondal.webp"
                     alt="Joy Mondal, Search Visibility & Web Design Specialist"
                     fill
                     priority

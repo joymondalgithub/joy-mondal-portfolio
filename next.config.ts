@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'iamjoymondal.netlify.app',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 's0.wp.com',
         port: '',
         pathname: '/mshots/**',

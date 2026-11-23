@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://joymondal.com';
+  const baseUrl = 'https://iamjoymondal.netlify.app';
   const currentDate = new Date().toISOString();
 
   return [
