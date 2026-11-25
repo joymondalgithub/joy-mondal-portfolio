@@ -109,11 +109,11 @@ function ExecutiveNavbar({ onOpenQuote }: ExecutiveNavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full flex items-center justify-between gap-6">
-        {/* Left Brand Lockup: Joy Mondal | GROWTH · WEB • SEO • ADS */}
+        {/* Left Brand Lockup: Joy Mondal | GROWTH · WEBSITE • SEO • ADS */}
         <a
           href="#hero"
           className="flex items-center shrink-0 group select-none transition-transform hover:opacity-95"
-          aria-label="Joy Mondal | GROWTH · WEB • SEO • ADS"
+          aria-label="Joy Mondal | GROWTH · WEBSITE • SEO • ADS"
         >
           <BrandLogo priority className="h-10 sm:h-[42px] w-auto shrink-0" />
         </a>
@@ -211,7 +211,7 @@ function ExecutiveNavbar({ onOpenQuote }: ExecutiveNavbarProps) {
           <button
             type="button"
             onClick={() => onOpenQuote()}
-            className="shrink-0 px-5 py-2.5 rounded-full bg-[#C99D55] hover:bg-[#D5AC65] text-[#221710] text-[13.5px] font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md inline-flex items-center justify-center"
+            className="btn-gold-sheen shrink-0 px-5 py-2.5 rounded-full bg-[#C99D55] hover:bg-[#D5AC65] text-[#221710] text-[13.5px] font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-sm hover:shadow-md inline-flex items-center justify-center"
           >
             Let&apos;s Talk
           </button>

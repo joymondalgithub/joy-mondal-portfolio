@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import WhatsAppIcon from './WhatsAppIcon';
 import JoySignature from './JoySignature';
+import { GoldSpotlightOverlay, useGoldSpotlight } from './MotionPrimitives';
+import { logToGoogleSheet } from '../lib/sheetWebhook';
 
 /* =========================================================================
    TYPES & DATA DEFINITIONS (BESPOKE SCOPES - NO FIXED TIERS)
@@ -27,6 +29,7 @@ export interface ScopeOption {
   isPopular?: boolean;
   subtitle: string;
   timeline: string;
+  ctaLabel?: string;
   deliverables: string[];
 }
 
@@ -46,55 +49,78 @@ export const SERVICES_CATALOG: ServiceScopeDefinition[] = [
     title: 'Custom Website Design & Development',
     summary:
       'High-performance bespoke web applications and digital flagships engineered for conversions, sub-second load times, and executive credibility.',
-    defaultScopeId: 'conversion-flagship',
+    defaultScopeId: 'starter',
     scopes: [
       {
-        id: 'conversion-flagship',
-        name: 'High-Converting Brand Flagship',
+        id: 'starter',
+        name: 'Starter',
+        subtitle:
+          'Rapid bespoke launch for businesses needing a high-converting custom website in 3–5 days.',
+        timeline: '3–5 Days Delivery',
+        ctaLabel: 'Get Started →',
+        deliverables: [
+          'Up to 5 website pages',
+          'Custom website design',
+          'Mobile-responsive layout',
+          'Free domain for 1 year',
+          'Free hosting for 1 year',
+          'Contact form integration',
+          'WhatsApp integration',
+          'Social media integration',
+          'Basic SEO setup',
+          'Basic speed optimisation',
+          '2 revision rounds',
+          '3–5 days delivery',
+        ],
+      },
+      {
+        id: 'business',
+        name: 'Business',
         isPopular: true,
         subtitle:
-          'A bespoke digital flagship built from scratch to attract high-intent clients and convert visitors into qualified calls.',
-        timeline: 'Rapid 5–10 Day Sprint',
+          'Conversion-focused custom website with analytics, Search Console, blog, and lead generation forms.',
+        timeline: '5–7 Days Delivery',
+        ctaLabel: 'Choose Business →',
         deliverables: [
-          'Bespoke custom UI/UX design (Tailwind CSS & Next.js)',
-          'Mobile-first responsive architecture & micro-interactions',
-          'Speed & Core Web Vitals tuning (sub-second load, .WebP assets)',
-          'High-converting call, WhatsApp & multi-step quote forms',
-          'Google Analytics 4 & Google Search Console verification',
-          'Schema markup (Organization, WebSite, LocalBusiness) for SEO & AI visibility',
-          'Domain, DNS & high-availability cloud hosting deployment',
+          'Up to 10 website pages',
+          'Premium custom website design',
+          'Mobile-responsive layout',
+          'Free domain and hosting for 1 year',
+          'Contact and lead generation forms',
+          'WhatsApp and social media integration',
+          'SEO setup and speed optimisation',
+          'Google Analytics setup',
+          'Google Search Console setup',
+          'Blog setup',
+          'Conversion-focused design',
+          '3 revision rounds',
+          '5–7 days delivery',
         ],
       },
       {
-        id: 'interactive-experience',
-        name: 'Interactive Brand & Motion Experience',
+        id: 'premium',
+        name: 'Premium',
         subtitle:
-          'Elevated bespoke animations, fluid interactive transitions, and immersive brand storytelling for premium positioning.',
-        timeline: '7–14 Day Custom Sprint',
+          'Full-scale custom web architecture with advanced SEO, animations, custom sections, and conversion optimisation.',
+        timeline: '7–12 Days Delivery',
+        ctaLabel: 'Get Premium →',
         deliverables: [
-          'Advanced GPU-accelerated motion & micro-interactions',
-          'Custom illustration/asset styling & editorial typography',
-          'Interactive calculators, visual product/service selectors',
-          'Full Core Web Vitals optimization with zero layout shift',
-          'Omnichannel lead qualification funnels & CRM integration',
-          'Search Engine & Generative Engine entity optimization',
-          'Dedicated post-launch warranty & performance monitoring',
-        ],
-      },
-      {
-        id: 'multi-location-system',
-        name: 'Multi-Service & Regional Scaling Architecture',
-        subtitle:
-          'Scalable modular architecture for multi-service or multi-location companies dominating competitive national and international markets.',
-        timeline: 'Bespoke Architecture Sprint',
-        deliverables: [
-          'Modular landing page system for multi-service expansion',
-          'Dedicated geo-targeted service area page structure',
-          'Dynamic lead routing & CRM/webhook automations',
-          'Deep technical SEO, local schema & AEO structured data',
-          'Custom headless CMS or component library integration',
-          'High-volume conversion optimization & A/B testing readiness',
-          'Executive analytics dashboard & pipeline tracking',
+          'Up to 15 website pages',
+          'Premium custom website design',
+          'Mobile-responsive layout',
+          'Free domain and hosting for 1 year',
+          'Advanced lead generation',
+          'Contact and lead forms',
+          'WhatsApp integration',
+          'Advanced SEO setup',
+          'Advanced speed optimisation',
+          'Google Analytics and Search Console',
+          'Blog setup',
+          'Conversion optimisation',
+          'Premium animations and interactions',
+          'Advanced custom sections',
+          '5 revision rounds',
+          '7–12 days delivery',
         ],
       },
     ],
@@ -448,6 +474,7 @@ function QuoteModalContent({
   const [country, setCountry] = useState(initialCountry);
   const [brief, setBrief] = useState(initialBrief);
   const [copied, setCopied] = useState(false);
+  const spotlight = useGoldSpotlight();
 
   // Check if Custom Website is active
   const isCustomWebsite = activeService.id === 'web-design';
@@ -539,6 +566,23 @@ function QuoteModalContent({
     }
   };
 
+  /** Silently logs scope tier selections and proposal submissions to the Google Sheet webhook. */
+  const logScopeEvent = (sourceLabel: string) => {
+    logToGoogleSheet({
+      url: website.trim() || 'Not provided',
+      overallScore: '',
+      speedScore: '',
+      seoScore: '',
+      issues:
+        brief.trim() ||
+        `${activeService.title} — ${currentScope.name} (${currentScope.timeline})`,
+      contact: `${name.trim() || 'Prospective Client'} | ${business.trim() || 'Not specified'} | ${country.trim() || 'Worldwide'}${
+        budget.trim() ? ` | ${currency} (${budget.trim()})` : ''
+      }`,
+      source: `${sourceLabel} (${activeService.title} - ${currentScope.name} / ${currentScope.timeline})`,
+    });
+  };
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 sm:p-5 lg:p-6 animate-in fade-in duration-200"
@@ -597,6 +641,7 @@ function QuoteModalContent({
                   href={directWhatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => logScopeEvent('Scope Direct WhatsApp')}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition shadow-sm"
                 >
                   <WhatsAppIcon className="w-4 h-4" />
@@ -606,6 +651,7 @@ function QuoteModalContent({
 
                 <a
                   href={directEmailUrl}
+                  onClick={() => logScopeEvent('Scope Direct Email')}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#272A32] hover:bg-[#323640] border border-[#D4AF37]/40 text-[#F6F2EA] text-xs font-semibold transition"
                 >
                   <Mail className="w-4 h-4 text-[#D4AF37]" />
@@ -679,13 +725,16 @@ function QuoteModalContent({
                       key={scope.id}
                       type="button"
                       onClick={() => setActiveScopeId(scope.id)}
-                      className={`text-left p-3 rounded-xl border text-xs transition-all cursor-pointer flex flex-col justify-between ${
+                      onPointerMove={spotlight.onPointerMove}
+                      onPointerLeave={spotlight.onPointerLeave}
+                      className={`group relative overflow-hidden text-left p-3 rounded-xl border text-xs transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between ${
                         isActive
                           ? 'bg-[#D4AF37]/15 border-[#D4AF37] text-[#F6F2EA] shadow-sm'
                           : 'bg-[#1F2228]/80 border-[#D4AF37]/20 text-[#A39B8E] hover:text-[#F6F2EA] hover:border-[#D4AF37]/50'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-1 mb-1">
+                      <GoldSpotlightOverlay />
+                      <div className="relative z-10 flex items-start justify-between gap-1 mb-1">
                         <span className="font-semibold text-xs leading-tight text-[#F6F2EA]">
                           {scope.name}
                         </span>
@@ -695,7 +744,7 @@ function QuoteModalContent({
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] font-mono text-[#D4AF37] mt-1">
+                      <span className="relative z-10 text-[10px] font-mono text-[#D4AF37] mt-1">
                         {scope.timeline}
                       </span>
                     </button>
@@ -738,16 +787,20 @@ function QuoteModalContent({
             <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
               <button
                 type="button"
-                onClick={() => setModalView('brief-form')}
-                className="w-full sm:flex-1 bg-[#D4AF37] hover:bg-[#E5BE4A] text-[#16181D] font-bold py-3.5 px-6 rounded-full text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => {
+                  logScopeEvent('Scope Tier CTA');
+                  setModalView('brief-form');
+                }}
+                className="btn-gold-sheen w-full sm:flex-1 bg-[#D4AF37] hover:bg-[#E5BE4A] text-[#16181D] font-bold py-3.5 px-6 rounded-full text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>REQUEST CUSTOM PROPOSAL →</span>
+                <span>{currentScope.ctaLabel ?? 'REQUEST CUSTOM PROPOSAL →'}</span>
               </button>
 
               <a
                 href={directWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => logScopeEvent('Scope Discuss on WhatsApp')}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border border-[#25D366]/50 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] text-xs font-bold transition cursor-pointer"
               >
                 <WhatsAppIcon className="w-4 h-4" />
@@ -799,6 +852,7 @@ function QuoteModalContent({
               className="mt-5 space-y-4"
               onSubmit={(e) => {
                 e.preventDefault();
+                logScopeEvent('Quote Modal');
                 setModalView('submitted');
               }}
             >
@@ -931,7 +985,7 @@ function QuoteModalContent({
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <button
                   type="submit"
-                  className="w-full sm:flex-1 bg-[#D4AF37] hover:bg-[#E5BE4A] text-[#16181D] font-bold py-3.5 px-6 rounded-full text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="btn-gold-sheen w-full sm:flex-1 bg-[#D4AF37] hover:bg-[#E5BE4A] text-[#16181D] font-bold py-3.5 px-6 rounded-full text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Review &amp; Transmit Proposal →</span>
                 </button>

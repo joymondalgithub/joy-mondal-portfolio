@@ -104,8 +104,9 @@ export default function ParticleMeshCanvas() {
       hasCachedRect = false;
     };
 
-    // Invalidate cursor position on scroll to avoid forced reflow and save GPU
+    // Invalidate cursor position on scroll only while visible to avoid idle work off-screen
     const handleScroll = () => {
+      if (!isCanvasVisible || !isPageVisible) return;
       hasCachedRect = false;
       mouseX = -9999;
       mouseY = -9999;
@@ -183,11 +184,16 @@ export default function ParticleMeshCanvas() {
     };
 
     const updateAnimation = () => {
-      if (isCanvasVisible && isPageVisible) {
+      if (isCanvasVisible && isPageVisible && !reduceMotion) {
         if (animationFrameId === null) animationFrameId = requestAnimationFrame(render);
-      } else if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+      } else {
+        if (animationFrameId !== null) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        if (reduceMotion && isCanvasVisible && isPageVisible && width > 0 && height > 0) {
+          render(performance.now());
+        }
       }
     };
 
@@ -241,6 +247,7 @@ export default function ParticleMeshCanvas() {
   return (
     <canvas
       ref={canvasRef}
+      style={{ contain: 'strict' }}
       className="pointer-events-none absolute inset-0 z-0 w-full h-full"
       aria-hidden="true"
     />

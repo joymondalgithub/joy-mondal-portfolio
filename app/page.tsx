@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -16,9 +16,15 @@ import {
   TrendingUp,
   Zap,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import ExecutiveNavbar from '../src/components/ExecutiveNavbar';
 import JoySignature from '../src/components/JoySignature';
+import {
+  GoldSpotlightOverlay,
+  HeroPortraitDepth,
+  RevealOnScroll,
+  useGoldSpotlight,
+} from '../src/components/MotionPrimitives';
 import ParticleMeshCanvas from '../src/components/ParticleMeshCanvas';
 import ScrollLightBeam from '../src/components/ScrollLightBeam';
 import TypewriterDeliver from '../src/components/TypewriterDeliver';
@@ -137,6 +143,15 @@ export default function HomePage() {
   const [quoteBusiness, setQuoteBusiness] = useState('');
   const [quoteCountry, setQuoteCountry] = useState('');
   const [quoteBrief, setQuoteBrief] = useState('');
+
+  const spotlight = useGoldSpotlight();
+  const processGridRef = useRef<HTMLDivElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+  const { scrollYProgress: processScrollProgress } = useScroll({
+    target: processGridRef,
+    offset: ['start 82%', 'end 55%'],
+  });
+  const processLineScaleX = useTransform(processScrollProgress, [0, 1], [0, 1]);
 
   const openQuote = (
     websiteOrService = '',
@@ -269,7 +284,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openQuote()}
-                  className="bg-[#C99D55] hover:bg-[#D8AF68] text-[#221710] font-semibold px-7 py-3.5 text-base rounded-full transition-all cursor-pointer shadow-lg inline-flex items-center gap-2"
+                  className="btn-gold-sheen bg-[#C99D55] hover:bg-[#D8AF68] text-[#221710] font-semibold px-7 py-3.5 text-base rounded-full transition-colors cursor-pointer shadow-lg inline-flex items-center gap-2"
                 >
                   Book a Strategy Call →
                 </button>
@@ -368,17 +383,20 @@ export default function HomePage() {
                 className="relative w-full max-w-[360px] sm:max-w-[400px] lg:max-w-[420px]"
               >
                 
-                {/* Symmetrical Rounded Portrait Frame */}
-                <div className="relative aspect-[4/5] w-full rounded-3xl border border-[#C99D55]/30 bg-gradient-to-b from-[#332419] to-[#221710] shadow-xl overflow-hidden">
-                  <Image
-                    src="/joy-mondal.webp"
-                    alt="Joy Mondal, Search Visibility & Web Design Specialist"
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 380px, 430px"
-                    className="object-cover object-top"
-                  />
-                </div>
+                <HeroPortraitDepth>
+                  {/* Symmetrical Rounded Portrait Frame */}
+                  <div className="relative aspect-[4/5] w-full rounded-3xl border border-[#C99D55]/30 bg-gradient-to-b from-[#332419] to-[#221710] shadow-xl overflow-hidden">
+                    <Image
+                      src="/joy-mondal.webp"
+                      alt="Joy Mondal, Search Visibility & Web Design Specialist"
+                      fill
+                      priority
+                      unoptimized
+                      sizes="(max-width: 768px) 100vw, 480px"
+                      className="object-cover object-top"
+                    />
+                  </div>
+                </HeroPortraitDepth>
 
                 {/* 1. Top-Left Badge: KEYWORD #1 */}
                 <div className="absolute top-4 -left-3 sm:top-5 sm:-left-7 z-20 bg-[#221710]/98 border border-[#C99D55]/35 hover:border-[#C99D55]/60 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-[0_6px_16px_rgba(0,0,0,0.5)] flex items-center gap-2.5 transition-all animate-float-slow">
@@ -468,6 +486,7 @@ export default function HomePage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 'some' }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{ contain: 'layout paint' }}
         className="w-full border-t border-b border-[#C99D55]/20 bg-[#1C130D] py-3.5 overflow-hidden relative z-20"
       >
         <div className="animate-marquee whitespace-nowrap flex select-none text-xs sm:text-sm font-medium text-[#E5DDD3] tracking-wide items-center">
@@ -537,16 +556,20 @@ export default function HomePage() {
             {CORE_SERVICES.map((service, index) => {
               const ServiceIcon = service.icon;
               return (
-                <motion.div
+                <RevealOnScroll
                   key={service.number}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.12 }}
-                  transition={{ duration: 0.4, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                  className="bg-[#FFFFFF] border border-[#E3DCD0] hover:border-[#C99D55] rounded-xl sm:rounded-2xl p-3.5 sm:py-3.5 sm:px-5 transition-all duration-200 shadow-xs hover:shadow-md group flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4"
+                  delayMs={index * 70}
+                  style={{ contain: 'layout paint' }}
+                  className="relative"
                 >
+                  <div
+                    onPointerMove={spotlight.onPointerMove}
+                    onPointerLeave={spotlight.onPointerLeave}
+                    className="relative bg-[#FFFFFF] border border-[#E3DCD0] hover:border-[#C99D55] hover:-translate-y-0.5 rounded-xl sm:rounded-2xl p-3.5 sm:py-3.5 sm:px-5 transition-[transform,border-color] duration-200 shadow-xs group flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 overflow-hidden"
+                  >
+                    <GoldSpotlightOverlay />
                   {/* Left Column: Number Badge + Icon + Service Eyebrow & Title */}
-                  <div className="flex items-center gap-3 sm:gap-3.5 md:min-w-[270px] lg:min-w-[320px] md:shrink-0">
+                  <div className="relative z-10 flex items-center gap-3 sm:gap-3.5 md:min-w-[270px] lg:min-w-[320px] md:shrink-0">
                     <span className="font-mono text-xs font-bold text-[#9C7130] bg-[#FAF7F0] border border-[#C99D55]/30 px-2 py-0.5 rounded shrink-0">
                       {service.number}
                     </span>
@@ -595,7 +618,8 @@ export default function HomePage() {
                       <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   </div>
-                </motion.div>
+                  </div>
+                </RevealOnScroll>
               );
             })}
           </div>
@@ -655,7 +679,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => openQuote('Custom Growth Engagement')}
-                    className="bg-[#C99D55] hover:bg-[#D8AF68] text-[#221710] font-semibold px-6 py-3 text-sm rounded-full transition-all cursor-pointer shadow-lg inline-flex items-center gap-2"
+                    className="btn-gold-sheen bg-[#C99D55] hover:bg-[#D8AF68] text-[#221710] font-semibold px-6 py-3 text-sm rounded-full transition-colors cursor-pointer shadow-lg inline-flex items-center gap-2"
                   >
                     Request a Custom Proposal →
                   </button>
@@ -734,30 +758,50 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          {/* 4-Column Dark Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PROCESS_STEPS.map((step, idx) => (
+          {/* 4-Column Dark Grid with Scroll-Linked Champagne Gold Connector Line */}
+          <div ref={processGridRef} className="relative">
+            <div
+              aria-hidden="true"
+              className="hidden lg:block pointer-events-none absolute top-9 left-[12.5%] right-[12.5%] h-[2px] bg-[#C99D55]/15 rounded-full overflow-hidden z-0"
+            >
               <motion.div
-                key={step.number}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-[#2B1E15] border border-[#C99D55]/18 rounded-xl p-6 flex flex-col justify-between hover:border-[#C99D55]/40 transition-all group shadow-lg"
-              >
-                <div>
-                  <span className="text-xs font-mono font-bold text-[#C99D55] bg-[#36261B] px-2.5 py-1 rounded w-fit inline-block mb-4">
-                    STEP {step.number}
-                  </span>
-                  <h3 className="text-lg font-bold text-[#F6F2EA] mb-2 group-hover:text-[#C99D55] transition-colors">
-                    {step.title}
-                  </h3>
-                  <p className="text-xs sm:text-[13px] leading-relaxed text-[#B8AFA6]">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+                className="h-full w-full bg-gradient-to-r from-[#C99D55] via-[#E5C585] to-[#D4AF37]"
+                style={{
+                  scaleX: shouldReduceMotion ? 1 : processLineScaleX,
+                  transformOrigin: 'left',
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              {PROCESS_STEPS.map((step, idx) => (
+                <RevealOnScroll
+                  key={step.number}
+                  delayMs={idx * 80}
+                  style={{ contain: 'layout paint' }}
+                  className="h-full"
+                >
+                  <div
+                    onPointerMove={spotlight.onPointerMove}
+                    onPointerLeave={spotlight.onPointerLeave}
+                    className="relative h-full bg-[#2B1E15] border border-[#C99D55]/18 hover:border-[#C99D55]/50 hover:-translate-y-0.5 rounded-xl p-6 flex flex-col justify-between transition-[transform,border-color] duration-200 group shadow-lg overflow-hidden"
+                  >
+                    <GoldSpotlightOverlay />
+                    <div className="relative z-10">
+                      <span className="text-xs font-mono font-bold text-[#C99D55] bg-[#36261B] border border-[#C99D55]/25 px-2.5 py-1 rounded w-fit inline-block mb-4">
+                        STEP {step.number}
+                      </span>
+                      <h3 className="text-lg font-bold text-[#F6F2EA] mb-2 group-hover:text-[#C99D55] transition-colors">
+                        {step.title}
+                      </h3>
+                      <p className="text-xs sm:text-[13px] leading-relaxed text-[#B8AFA6]">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </RevealOnScroll>
+              ))}
+            </div>
           </div>
 
         </div>

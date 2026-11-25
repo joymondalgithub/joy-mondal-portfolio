@@ -11,6 +11,7 @@ import {
 import JoySignature from '../../src/components/JoySignature';
 import SeoProofShowcase from '../../src/components/SeoProofShowcase';
 import WhatsAppIcon from '../../src/components/WhatsAppIcon';
+import { AnimatedMetricValue } from '../../src/components/MotionPrimitives';
 
 const QuoteModal = dynamic(() => import('../../src/components/QuoteModal'), { ssr: false });
 
@@ -114,7 +115,7 @@ export default function SeoResultsPage() {
                 90-Day Impressions
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                1.26M+
+                <AnimatedMetricValue value="1.26M+" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 +413K vs Prior Cycle
@@ -126,7 +127,7 @@ export default function SeoResultsPage() {
                 Verified Clicks
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                87.6K+
+                <AnimatedMetricValue value="87.6K+" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 +55.8% YoY Acceleration
@@ -138,7 +139,7 @@ export default function SeoResultsPage() {
                 Peak SERP CTR
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                28.8%
+                <AnimatedMetricValue value="28.8%" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 4.2x Industry Standard
@@ -150,7 +151,7 @@ export default function SeoResultsPage() {
                 Average Position
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                5.8
+                <AnimatedMetricValue value="5.8" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 First Page Core Terms

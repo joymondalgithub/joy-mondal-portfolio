@@ -74,6 +74,35 @@
   transform: translateY(-2px);
 }
 
+/* Luxury Diagonal Champagne Gold Sheen (Pure GPU Transform) */
+.btn-gold-sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-gold-sheen::after {
+  content: '';
+  position: absolute;
+  inset: -25% auto -25% -40%;
+  width: 38%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 248, 225, 0.38) 50%,
+    transparent 100%
+  );
+  transform: translate3d(-120%, 0, 0) skewX(-22deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
+}
+
+.btn-gold-sheen:hover::after {
+  opacity: 1;
+  transform: translate3d(420%, 0, 0) skewX(-22deg);
+}
+
 /* Default typography rules: body, h1, h2, h3, p, button use Plus Jakarta Sans */
 body, h1, h2, h3, h4, h5, h6, p, button, input, select, textarea {
   font-family: var(--font-sans);
@@ -274,5 +303,9 @@ blockquote,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .btn-gold-sheen::after {
+    display: none !important;
   }
 }

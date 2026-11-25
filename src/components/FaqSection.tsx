@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
+import { RevealOnScroll } from './MotionPrimitives';
 
 const FAQ_ITEMS = [
   {
@@ -59,18 +60,16 @@ export default function FaqSection() {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.45, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-4xl divide-y divide-[#E0D7C8] border-y border-[#E0D7C8]"
-        >
+        <div className="max-w-4xl divide-y divide-[#E0D7C8] border-y border-[#E0D7C8]">
           {FAQ_ITEMS.map(({ question, answer }, index) => {
             const isOpen = openIndex === index;
             const answerId = `faq-answer-${index}`;
             return (
-              <div key={question} className="transition-colors hover:bg-[#EFEAE0]/40">
+              <RevealOnScroll
+                key={question}
+                delayMs={index * 60}
+                className="transition-colors hover:bg-[#EFEAE0]/40"
+              >
                 <h3>
                   <button
                     type="button"
@@ -92,10 +91,10 @@ export default function FaqSection() {
                     </p>
                   </div>
                 )}
-              </div>
+              </RevealOnScroll>
             );
           })}
-        </motion.div>
+        </div>
 
       </div>
     </section>

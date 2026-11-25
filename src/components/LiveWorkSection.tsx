@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,6 +19,11 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import SeoProofShowcase from './SeoProofShowcase';
+import {
+  AnimatedMetricValue,
+  GoldSpotlightOverlay,
+  useGoldSpotlight,
+} from './MotionPrimitives';
 import { LIVE_PROJECTS, PAID_AD_STUDIES } from '../data/portfolio';
 
 /* =========================================================================
@@ -41,6 +46,7 @@ function ProjectPreviewImage({
       src={imgSrc}
       alt={alt}
       fill
+      unoptimized
       loading="lazy"
       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
       onError={() => {
@@ -54,6 +60,58 @@ function ProjectPreviewImage({
   );
 }
 
+/** Sleek executive custom quote strip rendered beneath each portfolio subsection. */
+function ExecutiveQuoteBanner({
+  kicker,
+  heading,
+  description,
+  ctaLabel,
+  onClick,
+}: {
+  kicker: string;
+  heading: string;
+  description: string;
+  ctaLabel: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        backgroundImage:
+          'radial-gradient(circle at top right, rgba(212, 175, 55, 0.08), transparent 60%)',
+        contain: 'layout paint',
+      }}
+      className="mt-6 sm:mt-7 rounded-2xl bg-[#16181D]/90 border border-[#D4AF37]/25 hover:border-[#D4AF37]/50 py-5 px-6 md:px-8 text-[#F5F2EB] shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 relative overflow-hidden transition-colors duration-200"
+    >
+      <div className="max-w-2xl relative z-10">
+        <span className="text-[10px] sm:text-[11px] font-mono font-semibold tracking-[0.18em] uppercase text-[#D4AF37] bg-[#16181D] border border-[#D4AF37]/25 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5 mb-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" />
+          {kicker}
+        </span>
+        <h4 className="text-lg sm:text-xl font-bold text-[#F5F2EB] leading-snug mb-1">
+          {heading}
+        </h4>
+        <p className="text-xs sm:text-[13px] text-[#A39E93] leading-relaxed">
+          {description}
+        </p>
+      </div>
+      <div className="relative z-10 shrink-0 self-start md:self-center">
+        <button
+          type="button"
+          onClick={onClick}
+          className="btn-gold-sheen bg-[#D4AF37] hover:bg-[#C5A028] text-[#16181D] font-semibold rounded-full px-6 py-3 text-xs sm:text-sm transition-colors duration-200 cursor-pointer shadow-sm hover:shadow-md inline-flex items-center gap-2 whitespace-nowrap"
+        >
+          <span>{ctaLabel}</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 /* =========================================================================
    LIVE WORK SECTION COMPONENT
    Supports BOTH Quick Switching AND Continuous Vertical Viewing
@@ -62,14 +120,20 @@ interface LiveWorkSectionProps {
   onOpenQuote?: (service?: string) => void;
 }
 
+const emptySubscribe = () => () => {};
+
 export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [activeTab, setActiveTab] = useState<'all' | 'websites' | 'seo' | 'ads'>('all');
   const [modalIndex, setModalIndex] = useState<number | null>(null);
+  const [showAllWebsites, setShowAllWebsites] = useState(false);
+  const spotlight = useGoldSpotlight();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const visibleProjects = showAllWebsites ? LIVE_PROJECTS : LIVE_PROJECTS.slice(0, 8);
 
   // Hash navigation support: jumps or filters smoothly if user clicks submenu
   useEffect(() => {
@@ -273,7 +337,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
 
             {/* 4 Compact Live Website Cards (4-Column Desktop Grid) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-              {LIVE_PROJECTS.map((project, idx) => {
+              {visibleProjects.map((project, idx) => {
                 const fallbackMshot = `https://s0.wp.com/mshots/v1/${encodeURIComponent(
                   project.url
                 )}?w=1200&h=750`;
@@ -284,8 +348,9 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.12 }}
-                    transition={{ duration: 0.4, delay: idx * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                    className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3 sm:p-3.5 transition-all duration-300 flex flex-col justify-between group shadow-lg h-full"
+                    transition={{ duration: 0.4, delay: (idx % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ contain: 'layout paint' }}
+                    className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3 sm:p-3.5 transition-colors duration-200 flex flex-col justify-between group shadow-lg h-full"
                   >
                     <div>
                       {/* Compact Browser Frame with Image Preview */}
@@ -326,7 +391,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                           href={project.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="absolute inset-0 z-30 flex items-center justify-center bg-black/55 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200"
+                          className="absolute inset-0 z-30 flex items-center justify-center bg-black/30 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200"
                           aria-label={`Open live site for ${project.title}`}
                         >
                           <span className="bg-[#C99D55] text-[#221710] font-bold text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1 transform group-hover/preview:scale-100 scale-95 transition-transform duration-200">
@@ -388,6 +453,27 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                 );
               })}
             </div>
+
+            {/* Expand / Collapse Button for Extra Client Projects */}
+            <div className="flex justify-center mt-6 sm:mt-7">
+              <button
+                type="button"
+                onClick={() => setShowAllWebsites((prev) => !prev)}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-[#D4AF37]/40 bg-[#16181D] hover:bg-[#D4AF37] text-[#D4AF37] hover:text-[#16181D] text-xs sm:text-[13px] font-bold uppercase tracking-wider transition-all duration-300 shadow-md cursor-pointer group"
+                aria-expanded={showAllWebsites}
+              >
+                <span>{showAllWebsites ? 'Show Less ↑' : 'See More Projects (3) ↓'}</span>
+              </button>
+            </div>
+
+            {/* Executive Custom Quote Banner (Part 1 - Websites) */}
+            <ExecutiveQuoteBanner
+              kicker="OPEN CLIENT SLOT"
+              heading="Your Website Could Be Next"
+              description="Tailored high-converting websites built for sub-second speeds, search visibility, AI answers, and real business leads—scoped via custom quote rather than rigid templates."
+              ctaLabel="Request Custom Quote →"
+              onClick={() => onOpenQuote?.('01. Custom Website Design & Development')}
+            />
           </div>
         )}
 
@@ -424,6 +510,15 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
 
             {/* Compact SEO Showcase (3 items top row, 2 items bottom row) */}
             <SeoProofShowcase showPageLink={false} />
+
+            {/* Executive Custom Quote Banner (Part 2 - SEO, AEO & GEO) */}
+            <ExecutiveQuoteBanner
+              kicker="OPEN SEO & AI GROWTH SLOT"
+              heading="Your Search & AI Rankings Could Be Next"
+              description="Bespoke SEO, AEO & GEO campaigns engineered to dominate Google Search and AI answer engines like ChatGPT, Gemini, and Perplexity—focused on revenue, not vanity impressions."
+              ctaLabel="Request SEO & GEO Quote →"
+              onClick={() => onOpenQuote?.('02. SEO, AEO & GEO Search Dominance')}
+            />
           </div>
         )}
 
@@ -473,9 +568,13 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all duration-300 shadow-lg group h-full"
+                    style={{ contain: 'layout paint' }}
+                    onPointerMove={spotlight.onPointerMove}
+                    onPointerLeave={spotlight.onPointerLeave}
+                    className="relative bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/55 hover:-translate-y-0.5 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-[transform,border-color] duration-200 shadow-lg group h-full overflow-hidden"
                   >
-                    <div>
+                    <GoldSpotlightOverlay />
+                    <div className="relative z-10">
                       {/* Top Tag Row */}
                       <div className="flex items-center justify-between gap-1.5 mb-1.5">
                         <span className="font-mono text-[9px] font-bold text-[#C99D55] bg-[#1C130D] border border-[#C99D55]/25 px-2 py-0.5 rounded truncate">
@@ -504,7 +603,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                       {/* Compact Screenshot Preview Container with Zoom Trigger */}
                       <div
                         onClick={() => handleOpenModal(study.id)}
-                        className="relative rounded-lg overflow-hidden border border-[#C99D55]/25 bg-[#FAF8F5] p-1 shadow-xs cursor-pointer group/img transition-all duration-300 hover:border-[#C99D55]/60 hover:shadow-md mb-2.5"
+                        className="relative rounded-lg overflow-hidden border border-[#C99D55]/25 bg-[#FAF8F5] p-1 shadow-xs cursor-pointer group/img transition-colors duration-200 hover:border-[#C99D55]/60 mb-2.5"
                         title="Click to zoom dashboard"
                       >
                         <div className="relative aspect-[16/9] max-h-44 sm:max-h-48 w-full overflow-hidden rounded bg-[#FAF8F5]">
@@ -513,13 +612,14 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                             alt={study.headline}
                             width={study.width}
                             height={study.height}
+                            unoptimized
                             sizes="(max-width: 768px) 100vw, 33vw"
                             className="w-full h-full object-contain object-center transition-transform duration-300 ease-out group-hover/img:scale-[1.02]"
                             loading="lazy"
                           />
 
-                          {/* Dark Clean Hover Overlay */}
-                          <div className="absolute inset-0 bg-[#221710]/80 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1 p-2 text-center">
+                          {/* Clean Subtle Hover Pill */}
+                          <div className="absolute inset-0 bg-[#221710]/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1 p-2 text-center">
                             <div className="w-7 h-7 rounded-full bg-[#C99D55] text-[#221710] flex items-center justify-center shadow-md">
                               <Maximize2 className="w-3.5 h-3.5" />
                             </div>
@@ -541,7 +641,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                               {m.label}
                             </span>
                             <span className="text-[10.5px] sm:text-[11px] font-bold text-[#F6F2EA] font-mono mt-0.5 truncate">
-                              {m.value}
+                              <AnimatedMetricValue value={m.value} />
                             </span>
                           </div>
                         ))}
@@ -582,9 +682,13 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-all duration-300 shadow-lg group h-full"
+                    style={{ contain: 'layout paint' }}
+                    onPointerMove={spotlight.onPointerMove}
+                    onPointerLeave={spotlight.onPointerLeave}
+                    className="relative bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/55 hover:-translate-y-0.5 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between transition-[transform,border-color] duration-200 shadow-lg group h-full overflow-hidden"
                   >
-                    <div>
+                    <GoldSpotlightOverlay />
+                    <div className="relative z-10">
                       {/* Top Tag Row */}
                       <div className="flex items-center justify-between gap-1.5 mb-1.5">
                         <span className="font-mono text-[9px] font-bold text-[#C99D55] bg-[#1C130D] border border-[#C99D55]/25 px-2 py-0.5 rounded truncate">
@@ -613,7 +717,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                       {/* Compact Screenshot Preview Container with Zoom Trigger */}
                       <div
                         onClick={() => handleOpenModal(study.id)}
-                        className="relative rounded-lg overflow-hidden border border-[#C99D55]/25 bg-[#FAF8F5] p-1 shadow-xs cursor-pointer group/img transition-all duration-300 hover:border-[#C99D55]/60 hover:shadow-md mb-2.5"
+                        className="relative rounded-lg overflow-hidden border border-[#C99D55]/25 bg-[#FAF8F5] p-1 shadow-xs cursor-pointer group/img transition-colors duration-200 hover:border-[#C99D55]/60 mb-2.5"
                         title="Click to zoom dashboard"
                       >
                         <div className="relative aspect-[16/9] max-h-48 sm:max-h-52 w-full overflow-hidden rounded bg-[#FAF8F5]">
@@ -622,13 +726,14 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                             alt={study.headline}
                             width={study.width}
                             height={study.height}
+                            unoptimized
                             sizes="(max-width: 768px) 100vw, 50vw"
                             className="w-full h-full object-contain object-center transition-transform duration-300 ease-out group-hover/img:scale-[1.02]"
                             loading="lazy"
                           />
 
-                          {/* Dark Clean Hover Overlay */}
-                          <div className="absolute inset-0 bg-[#221710]/80 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1 p-2 text-center">
+                          {/* Clean Subtle Hover Pill */}
+                          <div className="absolute inset-0 bg-[#221710]/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1 p-2 text-center">
                             <div className="w-7 h-7 rounded-full bg-[#C99D55] text-[#221710] flex items-center justify-center shadow-md">
                               <Maximize2 className="w-3.5 h-3.5" />
                             </div>
@@ -650,7 +755,7 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                               {m.label}
                             </span>
                             <span className="text-[10.5px] sm:text-[11px] font-bold text-[#F6F2EA] font-mono mt-0.5 truncate">
-                              {m.value}
+                              <AnimatedMetricValue value={m.value} />
                             </span>
                           </div>
                         ))}
@@ -676,6 +781,15 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                 ))}
               </div>
             </div>
+
+            {/* Executive Custom Quote Banner (Part 3 - Google Ads & Facebook Ads) */}
+            <ExecutiveQuoteBanner
+              kicker="OPEN PAID ACQUISITION SLOT"
+              heading="Your Ad Campaigns Could Be Next"
+              description="High-intent Google Ads & Facebook Ads funnels built for qualified customer acquisition, positive unit economics, and audited ROAS—backed by custom reporting."
+              ctaLabel="Request Ads Quote →"
+              onClick={() => onOpenQuote?.('03. Google Ads & Facebook Ads')}
+            />
           </div>
         )}
 
@@ -727,7 +841,8 @@ export default function LiveWorkSection({ onOpenQuote }: LiveWorkSectionProps) {
                   alt={currentModalStudy.headline}
                   width={currentModalStudy.width}
                   height={currentModalStudy.height}
-                  className="w-full h-auto object-contain mx-auto rounded-lg"
+                  unoptimized
+                  className="w-full h-auto max-h-[64vh] object-contain mx-auto rounded-lg"
                   priority
                 />
               </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,6 +14,11 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import SmartVideo from './SmartVideo';
+import {
+  AnimatedMetricValue,
+  GoldSpotlightOverlay,
+  useGoldSpotlight,
+} from './MotionPrimitives';
 
 export interface ScreenshotProof {
   id: string;
@@ -120,10 +125,29 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
   const [mounted, setMounted] = useState(false);
   const [lightboxProof, setLightboxProof] = useState<ScreenshotProof | null>(null);
   const [lightboxVideo, setLightboxVideo] = useState<VideoProof | null>(null);
+  const lightboxVideoRef = useRef<HTMLVideoElement | null>(null);
+  const spotlight = useGoldSpotlight();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Auto-play modal video on open and pause if page tab becomes hidden
+  useEffect(() => {
+    if (!lightboxVideo) return;
+    const vidEl = lightboxVideoRef.current;
+    if (vidEl) {
+      vidEl.muted = true;
+      vidEl.play().catch(() => {});
+    }
+    const handleVisibility = () => {
+      if (document.hidden && lightboxVideoRef.current && !lightboxVideoRef.current.paused) {
+        lightboxVideoRef.current.pause();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [lightboxVideo]);
 
   // Close modals on Escape key
   useEffect(() => {
@@ -192,27 +216,15 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3.5 sm:p-4 transition-all duration-300 flex flex-col justify-between group shadow-lg h-full"
+                style={{ contain: 'layout paint' }}
+                onPointerMove={spotlight.onPointerMove}
+                onPointerLeave={spotlight.onPointerLeave}
+                className="relative bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/55 hover:-translate-y-0.5 rounded-xl p-3.5 sm:p-4 transition-[transform,border-color] duration-200 flex flex-col justify-between group shadow-lg h-full"
               >
-                <div>
-                  {/* Clean Browser Chrome Frame */}
-                  <div className="rounded-lg overflow-hidden border border-[#C99D55]/25 bg-[#150E09] mb-2.5 shadow-xs relative">
-                    <div className="px-2.5 py-1 border-b border-[#C99D55]/15 bg-[#1C130D] flex items-center justify-between text-[11px]">
-                      <div className="flex items-center gap-1" aria-hidden="true">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#E57373]/80" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#E5C585]/80" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#81C784]/80" />
-                      </div>
-                      <span className="font-mono text-[8.5px] text-[#C99D55] truncate max-w-[120px]">
-                        search.google.com
-                      </span>
-                      <span className="text-[8.5px] text-[#81C784] font-mono font-medium flex items-center gap-0.5">
-                        <span className="w-1 h-1 rounded-full bg-[#81C784]" />
-                        Verified
-                      </span>
-                    </div>
-
-                    {/* Viewport-Aware SmartVideo (Always Strictly Muted by Default) */}
+                <GoldSpotlightOverlay />
+                <div className="relative z-10">
+                  {/* Sleek Framed Video Container (No Browser Chrome Clutter) */}
+                  <div className="rounded-lg overflow-hidden border border-[#C99D55]/30 bg-white mb-2.5 shadow-xs relative">
                     <div className="w-full aspect-video bg-white relative overflow-hidden">
                       <SmartVideo
                         src={vid.src}
@@ -313,9 +325,13 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/50 rounded-xl p-3.5 sm:p-4 transition-all duration-300 flex flex-col justify-between group shadow-lg h-full"
+              style={{ contain: 'layout paint' }}
+              onPointerMove={spotlight.onPointerMove}
+              onPointerLeave={spotlight.onPointerLeave}
+              className="relative bg-[#2B1E15] border border-[#C99D55]/20 hover:border-[#C99D55]/55 hover:-translate-y-0.5 rounded-xl p-3.5 sm:p-4 transition-[transform,border-color] duration-200 flex flex-col justify-between group shadow-lg h-full"
             >
-              <div>
+              <GoldSpotlightOverlay />
+              <div className="relative z-10">
                 {/* Top Badge & Subtitle */}
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <span className="inline-flex items-center text-[9.5px] sm:text-[10px] font-semibold px-2 py-0.5 rounded bg-[#1C130D] text-[#E5C585] border border-[#C99D55]/25">
@@ -350,14 +366,15 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
                       src={proof.src}
                       alt={proof.title}
                       fill
+                      unoptimized
                       loading="lazy"
-                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="w-full h-full object-contain transition-transform duration-300 ease-out group-hover/img:scale-[1.01]"
                     />
                   </div>
 
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-[#221710]/75 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-lg">
+                  <div className="absolute inset-0 bg-[#221710]/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-lg">
                     <span className="bg-[#C99D55] text-[#221710] text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 transform scale-95 group-hover/img:scale-100 transition-transform">
                       <Maximize2 className="w-3.5 h-3.5" />
                       Expand Full View
@@ -376,7 +393,7 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
                         {m.label}
                       </div>
                       <div className="text-xs sm:text-[12.5px] font-bold font-mono text-[#F6F2EA] mt-0.5 truncate">
-                        {m.val}
+                        <AnimatedMetricValue value={m.val} />
                       </div>
                       {m.diff && (
                         <div className="text-[8px] sm:text-[8.5px] font-mono text-[#10B981] font-semibold mt-0.5 truncate">
@@ -453,6 +470,7 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
                   alt={lightboxProof.title}
                   width={1200}
                   height={675}
+                  unoptimized
                   className="max-h-[62vh] w-full h-auto object-contain rounded-lg"
                 />
               </div>
@@ -530,14 +548,15 @@ const SeoProofShowcase = memo(function SeoProofShowcase({ showPageLink = false }
             <div className="bg-[#150E09] p-4 sm:p-6 overflow-y-auto flex-1 flex flex-col items-center justify-center">
               <div className="bg-white p-2 rounded-xl border border-[#C99D55]/25 shadow-2xl flex items-center justify-center max-w-full">
                 <video
+                  ref={lightboxVideoRef}
                   src={lightboxVideo.src}
                   poster={lightboxVideo.poster || undefined}
                   controls
                   playsInline
                   loop
                   muted
-                  preload="none"
-                  autoPlay={false}
+                  preload="metadata"
+                  autoPlay
                   onLoadedMetadata={(e) => {
                     e.currentTarget.muted = true;
                     e.currentTarget.volume = 0;

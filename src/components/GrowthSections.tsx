@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import WhatsAppIcon from './WhatsAppIcon';
+import { logToGoogleSheet } from '../lib/sheetWebhook';
 import type { AuditResponseData, PriorityFix } from '../../app/api/audit/route';
 
 export interface FixPlanPayload {
@@ -102,7 +103,19 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
         clearTimeout(timer3);
         setScanProgress(100);
         if (json.success && json.data) {
-          setAuditResult(json.data);
+          const report: AuditResponseData = json.data;
+          setAuditResult(report);
+          logToGoogleSheet({
+            url: report.websiteUrl,
+            overallScore: report.overallScore,
+            speedScore: report.pillars.speedUx.score,
+            seoScore: report.pillars.seoAeoGeo.score,
+            issues: (report.priorityFixes || []).map((f) => f.title).join(' | '),
+            contact: `${report.businessName} | ${report.industry} | ${report.location}`,
+            source: report.isEliteBenchmark
+              ? 'AI Website Audit (Elite Benchmark)'
+              : 'AI Website Audit',
+          });
         } else {
           setError(json.error || 'Failed to complete audit. Please check details and try again.');
         }
@@ -229,6 +242,7 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
           transition={{ duration: 0.45, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+          style={{ contain: 'layout paint' }}
           className="bg-[#EFEAE0] border border-[#E3DCD0] rounded-2xl p-5 sm:p-8 md:p-10 shadow-sm"
         >
           
@@ -319,7 +333,7 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#B88A44] hover:bg-[#9C7130] text-[#221710] font-semibold px-8 py-4 rounded-full transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
+                className="btn-gold-sheen bg-[#B88A44] hover:bg-[#9C7130] text-[#221710] font-semibold px-8 py-4 rounded-full transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
               >
                 <span>{isLoading ? 'Inspecting Live Website...' : 'Run Live AI Growth & Reputation Audit →'}</span>
               </button>
@@ -327,30 +341,70 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
           </form>
 
           {/* =========================================================================
-              ANIMATED SCANNING BAR
+              INTERACTIVE AI AUDIT TELEMETRY STEPPER
               ========================================================================= */}
           {isLoading && (
             <div className="mt-8 pt-8 border-t border-[#DCD3C4] animate-in fade-in duration-300">
-              <div className="bg-[#F8F5EE] border border-[#E3DCD0] rounded-xl p-6 shadow-2xs">
+              <div className="bg-[#F8F5EE] border border-[#D4AF37]/35 rounded-xl p-5 sm:p-6 shadow-2xs">
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2.5">
                     <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B88A44] opacity-75" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D4AF37] opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-[#9C7130]" />
                     </span>
                     <span className="text-xs font-bold uppercase tracking-wider text-[#9C7130]">
-                      Live Server-Side Inspection Active
+                      Live Diagnostic Telemetry Active
                     </span>
                   </div>
                   <span className="font-mono text-xs font-bold text-[#221710]">{scanProgress}%</span>
                 </div>
 
-                {/* Bronze Progress Bar */}
-                <div className="w-full bg-[#E5DDCF] h-2 rounded-full overflow-hidden mb-3">
+                {/* GPU ScaleX Champagne Gold Progress Bar */}
+                <div className="w-full bg-[#E5DDCF] h-2 rounded-full overflow-hidden mb-4">
                   <div
-                    className="bg-[#B88A44] h-full rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${scanProgress}%` }}
+                    className="bg-gradient-to-r from-[#B88A44] via-[#D4AF37] to-[#E5C585] h-full w-full rounded-full transition-transform duration-500 ease-out"
+                    style={{
+                      transform: `scaleX(${Math.max(scanProgress, 5) / 100})`,
+                      transformOrigin: 'left',
+                    }}
                   />
+                </div>
+
+                {/* 3-Step Diagnostic Telemetry Progression */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+                  {[
+                    { label: 'Scanning Speed & Core Web Vitals', threshold: 15, doneAt: 40 },
+                    { label: 'Auditing SEO & AEO/GEO Signals', threshold: 40, doneAt: 75 },
+                    { label: 'Scoring Conversion Readiness', threshold: 75, doneAt: 100 },
+                  ].map((step, i) => {
+                    const isDone = scanProgress >= step.doneAt;
+                    const isActive = scanProgress >= step.threshold && !isDone;
+                    return (
+                      <div
+                        key={step.label}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px] font-medium transition-colors duration-200 ${
+                          isDone
+                            ? 'bg-[#EFEAE0] border-[#D4AF37]/45 text-[#221710]'
+                            : isActive
+                              ? 'bg-[#FFFFFF] border-[#D4AF37] text-[#221710] shadow-2xs'
+                              : 'bg-[#F8F5EE] border-[#E3DCD0] text-[#8C8278]'
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            isDone
+                              ? 'bg-[#10B981]'
+                              : isActive
+                                ? 'bg-[#D4AF37] animate-pulse'
+                                : 'bg-[#D8CFC0]'
+                          }`}
+                        />
+                        <span className="truncate">
+                          0{i + 1}. {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <p className="text-xs text-[#574E46] italic">
@@ -369,10 +423,16 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
               {/* Report Header Bar */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-[#F8F5EE] border border-[#E3DCD0] rounded-xl p-5">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#9C7130] bg-[#EDE5D6] px-2.5 py-0.5 rounded border border-[#D8CFC0]">
                       LIVE DIAGNOSTIC REPORT
                     </span>
+                    {auditResult.isEliteBenchmark && (
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#16181D] bg-[#D4AF37] px-2.5 py-0.5 rounded shadow-2xs">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        {auditResult.benchmarkBadge || 'Elite Growth Benchmark'}
+                      </span>
+                    )}
                     <span className="text-xs text-[#7A7066]">
                       {auditResult.location} • {auditResult.industry}
                     </span>
@@ -380,6 +440,11 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
                   <h3 className="text-xl font-bold text-[#221710]">
                     {auditResult.businessName}
                   </h3>
+                  {auditResult.isEliteBenchmark && (
+                    <p className="text-xs font-semibold text-emerald-800 mt-0.5">
+                      Verified: Built &amp; Optimized by Joy Mondal GROWTH
+                    </p>
+                  )}
                   <a
                     href={auditResult.websiteUrl}
                     target="_blank"
@@ -823,7 +888,9 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#B88A44]" />
                     <h4 className="text-sm font-bold uppercase tracking-wider text-[#221710]">
-                      Itemized Technical Gaps &amp; Actionable Fixes for {auditResult.businessName}
+                      {auditResult.isEliteBenchmark
+                        ? `Elite Growth Benchmark Verification for ${auditResult.businessName}`
+                        : `Itemized Technical Gaps & Actionable Fixes for ${auditResult.businessName}`}
                     </h4>
                   </div>
                   <span className="text-xs text-[#7A7066]">
@@ -846,7 +913,9 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
                             className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
                               fix.impact === 'Critical'
                                 ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                                : 'bg-amber-100 text-amber-900 border border-amber-200'
+                                : fix.impact === 'Strategic'
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                  : 'bg-amber-100 text-amber-900 border border-amber-200'
                             }`}
                           >
                             {fix.impact} Priority
@@ -942,7 +1011,7 @@ export function AuditSection({ onGetFixPlan }: AuditSectionProps) {
                   <button
                     type="button"
                     onClick={handleTriggerFixPlan}
-                    className="bg-[#221710] hover:bg-[#36251A] text-[#F8F5EE] font-semibold px-6 py-3 rounded-full transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-xs"
+                    className="btn-gold-sheen bg-[#221710] hover:bg-[#36251A] text-[#F8F5EE] font-semibold px-6 py-3 rounded-full transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm text-xs whitespace-nowrap"
                   >
                     <span>Custom Fix Scope →</span>
                   </button>

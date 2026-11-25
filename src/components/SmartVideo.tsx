@@ -25,15 +25,17 @@ const SmartVideo = memo(function SmartVideo({
   onExpand,
 }: SmartVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const isInViewRef = useRef(true);
+  const lastPointerTypeRef = useRef<string>('mouse');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(defaultMuted);
 
-  // Strictly enforce initial paused state, preload="none", muted, and playsInline
+  // Enforce initial paused state, preload="metadata", muted, and playsInline
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.preload = 'none';
+    video.preload = 'metadata';
     video.muted = isMuted;
     video.defaultMuted = true;
     video.playsInline = true;
@@ -43,13 +45,43 @@ const SmartVideo = memo(function SmartVideo({
     }
   }, [isMuted]);
 
-  // Play ONLY on hover (onMouseEnter / onPointerEnter)
+  // Automatically pause off-screen or background-tab videos via IntersectionObserver
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isInViewRef.current = entry.isIntersecting;
+        if (!entry.isIntersecting && !video.paused) {
+          video.pause();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(video);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && !video.paused) {
+        video.pause();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Play ONLY on hover when visible in viewport
   const handleHoverEnter = useCallback(
     (e: React.MouseEvent | React.PointerEvent) => {
       // Prevent touch scroll gestures on mobile/tablet from triggering hover play
       if ('pointerType' in e && e.pointerType === 'touch') {
         return;
       }
+      if (!isInViewRef.current || document.hidden) return;
       if (videoRef.current) {
         videoRef.current.muted = isMuted;
       }
@@ -76,18 +108,24 @@ const SmartVideo = memo(function SmartVideo({
     []
   );
 
-  // Tap/click support for touch devices and manual toggle
+  // Tap/click support: on desktop click opens lightbox when onExpand is supplied; on touch toggles playback
   const handleToggle = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    if (onExpand && lastPointerTypeRef.current !== 'touch') {
+      onExpand();
+      return;
+    }
+
     if (video.paused) {
+      if (!isInViewRef.current || document.hidden) return;
       video.muted = isMuted;
       videoRef.current?.play().catch(() => {});
     } else {
       videoRef.current?.pause();
     }
-  }, [isMuted]);
+  }, [isMuted, onExpand]);
 
   const toggleMute = useCallback(
     (e: React.MouseEvent) => {
@@ -105,6 +143,9 @@ const SmartVideo = memo(function SmartVideo({
   return (
     <div
       className={`relative group overflow-hidden select-none bg-white cursor-pointer ${className}`}
+      onPointerDown={(e) => {
+        lastPointerTypeRef.current = e.pointerType || 'mouse';
+      }}
       onMouseEnter={handleHoverEnter}
       onPointerEnter={handleHoverEnter}
       onMouseLeave={handleHoverLeave}
@@ -118,7 +159,7 @@ const SmartVideo = memo(function SmartVideo({
         loop={loop}
         muted={isMuted}
         playsInline
-        preload="none"
+        preload="metadata"
         disablePictureInPicture
         disableRemotePlayback
         onPlay={() => setIsPlaying(true)}
@@ -142,15 +183,15 @@ const SmartVideo = memo(function SmartVideo({
         </button>
       )}
 
-      {/* Subtle "Hover to preview" badge on desktop / "Tap to play" on mobile */}
+      {/* Crisp floating preview pill without darkening the poster */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none transition-opacity duration-200">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C130D]/92 border border-[#C99D55]/40 text-[#E5C585] shadow-lg">
-            <Play className="w-3 h-3 fill-current ml-0.5 text-[#C99D55]" />
-            <span className="text-[10px] sm:text-[10.5px] font-mono tracking-wide font-medium hidden sm:inline text-[#F6F2EA]">
+        <div className="absolute bottom-2.5 right-2.5 pointer-events-none transition-opacity duration-200">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1C130D]/90 border border-[#C99D55]/45 text-[#E5C585] shadow-md">
+            <Play className="w-2.5 h-2.5 fill-current ml-0.5 text-[#C99D55]" />
+            <span className="text-[10px] font-mono tracking-wide font-medium hidden sm:inline text-[#F6F2EA]">
               Hover to preview
             </span>
-            <span className="text-[10px] sm:text-[10.5px] font-mono tracking-wide font-medium sm:hidden text-[#F6F2EA]">
+            <span className="text-[10px] font-mono tracking-wide font-medium sm:hidden text-[#F6F2EA]">
               Tap to play
             </span>
           </div>

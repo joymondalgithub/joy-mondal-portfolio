@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,20 +17,28 @@ import {
 } from 'lucide-react';
 import JoySignature from '../../src/components/JoySignature';
 import WhatsAppIcon from '../../src/components/WhatsAppIcon';
+import {
+  AnimatedMetricValue,
+  GoldSpotlightOverlay,
+  useGoldSpotlight,
+} from '../../src/components/MotionPrimitives';
 import { PAID_AD_STUDIES, type PaidAdStudy } from '../../src/data/portfolio';
 
 const QuoteModal = dynamic(() => import('../../src/components/QuoteModal'), { ssr: false });
 
+const emptySubscribe = () => () => {};
+
 export default function PaidAdsPage() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [adsFilter, setAdsFilter] = useState<'all' | 'google' | 'meta'>('all');
   const [modalIndex, setModalIndex] = useState<number | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quoteService, setQuoteService] = useState('Google Ads & Meta Paid Advertising');
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const spotlight = useGoldSpotlight();
 
   const filteredStudies = PAID_AD_STUDIES.filter((study) => {
     if (adsFilter === 'all') return true;
@@ -186,7 +194,7 @@ export default function PaidAdsPage() {
                 Total Purchases
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                3,965+
+                <AnimatedMetricValue value="3,965+" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 Across verified accounts
@@ -210,7 +218,7 @@ export default function PaidAdsPage() {
                 Campaign Impressions
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                11.5M+
+                <AnimatedMetricValue value="11.5M+" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 Targeted commercial reach
@@ -222,7 +230,7 @@ export default function PaidAdsPage() {
                 Paid Traffic Clicks
               </div>
               <div className="text-2xl sm:text-3xl font-mono font-bold text-[#221710]">
-                224K+
+                <AnimatedMetricValue value="224K+" />
               </div>
               <div className="text-[11px] font-mono text-[#10B981] font-semibold mt-0.5">
                 High-intent buyer traffic
@@ -296,9 +304,13 @@ export default function PaidAdsPage() {
               <div
                 key={study.id}
                 data-scroll-reveal
-                className="bg-[#FFFFFF] border border-[#DCD3C5] hover:border-[#C99D55] rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-md group"
+                style={{ contain: 'layout paint' }}
+                onPointerMove={spotlight.onPointerMove}
+                onPointerLeave={spotlight.onPointerLeave}
+                className="relative overflow-hidden bg-[#FFFFFF] border border-[#DCD3C5] hover:border-[#C99D55] hover:-translate-y-0.5 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-[transform,border-color] duration-200 shadow-sm group"
               >
-                <div>
+                <GoldSpotlightOverlay />
+                <div className="relative z-10">
                   {/* Top Tag Row */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="font-mono text-[10px] font-bold text-[#9C7130] bg-[#FAF7F0] border border-[#C99D55]/30 px-2.5 py-0.5 rounded truncate">
@@ -336,13 +348,14 @@ export default function PaidAdsPage() {
                         alt={study.headline}
                         width={study.width}
                         height={study.height}
+                        unoptimized
                         sizes="(max-width: 768px) 100vw, 33vw"
                         className="w-full h-full object-contain object-center transition-transform duration-300 ease-out group-hover/img:scale-[1.02]"
                         loading="lazy"
                       />
 
                       {/* Zoom Hover Overlay */}
-                      <div className="absolute inset-0 bg-[#221710]/80 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1.5 p-3 text-center">
+                      <div className="absolute inset-0 bg-[#221710]/30 opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1.5 p-3 text-center">
                         <div className="w-9 h-9 rounded-full bg-[#C99D55] text-[#221710] flex items-center justify-center shadow-lg transform -translate-y-1 group-hover/img:translate-y-0 transition-transform duration-200">
                           <Maximize2 className="w-4 h-4" />
                         </div>
@@ -367,7 +380,7 @@ export default function PaidAdsPage() {
                           {m.label}
                         </span>
                         <span className="text-xs font-bold text-[#221710] font-mono mt-0.5">
-                          {m.value}
+                          <AnimatedMetricValue value={m.value} />
                         </span>
                       </div>
                     ))}
@@ -486,7 +499,8 @@ export default function PaidAdsPage() {
                   alt={currentModalStudy.headline}
                   width={currentModalStudy.width}
                   height={currentModalStudy.height}
-                  className="w-full h-auto object-contain mx-auto rounded-lg"
+                  unoptimized
+                  className="w-full h-auto max-h-[64vh] object-contain mx-auto rounded-lg"
                   priority
                 />
               </div>

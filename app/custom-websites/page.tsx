@@ -177,7 +177,7 @@ export default function CustomWebsitesPage() {
                   Production Deployments
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-[#221710]">
-                  4 Verified Client Websites Deployed Live
+                  {LIVE_PROJECTS.length} Verified Client Websites Deployed Live
                 </h2>
               </div>
             </div>
@@ -230,6 +230,7 @@ export default function CustomWebsitesPage() {
                           src={project.localImage}
                           alt={`${project.title} live website preview`}
                           fill
+                          unoptimized
                           loading="lazy"
                           sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                           onError={(e) => {
@@ -247,7 +248,7 @@ export default function CustomWebsitesPage() {
                         href={project.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="absolute inset-0 z-30 flex items-center justify-center bg-[#221710]/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        className="absolute inset-0 z-30 flex items-center justify-center bg-[#221710]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                         aria-label={`Open live site for ${project.title}`}
                       >
                         <span className="bg-[#C99D55] text-[#221710] font-bold text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 transform group-hover:scale-100 scale-95 transition-transform duration-200">
@@ -302,6 +303,88 @@ export default function CustomWebsitesPage() {
                 </article>
               );
             })}
+
+            {/* 12th Slot Card: Your Website Could Be Next */}
+            <article
+              data-scroll-reveal
+              className="bg-[#2B1E15] border border-[#C99D55]/30 hover:border-[#D4AF37] rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-[0_0_28px_rgba(212,175,55,0.18)]"
+            >
+              <div>
+                {/* Gold-Accented Dark Browser Frame */}
+                <div className="aspect-[16/10] bg-[#1A120C] rounded-xl overflow-hidden border border-[#C99D55]/25 relative mb-5 group">
+                  <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-3.5 py-1.5 border-b border-[#C99D55]/15 bg-[#1C130D]">
+                    <div className="flex items-center gap-1.5" aria-hidden="true">
+                      <span className="h-2 w-2 rounded-full bg-[#E57373]/80" />
+                      <span className="h-2 w-2 rounded-full bg-[#E5C585]/70" />
+                      <span className="h-2 w-2 rounded-full bg-[#81C784]/80" />
+                    </div>
+                    <span className="rounded border border-[#D4AF37]/40 bg-[#D4AF37]/15 px-2 py-0.5 font-mono text-[10px] text-[#D4AF37] font-bold tracking-wider">
+                      NEXT LAUNCH
+                    </span>
+                  </div>
+
+                  <div className="relative pt-6 px-6 h-full w-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#241810] via-[#1A120C] to-[#140D08]">
+                    <span className="font-mono text-xs font-semibold text-[#D4AF37] tracking-wide">
+                      &lt;JoyMondalGrowth /&gt;
+                    </span>
+                    <span className="text-base sm:text-lg font-bold text-[#F6F2EA] mt-1.5">
+                      Your Brand • Custom Architecture
+                    </span>
+                    <span className="text-xs text-[#C4B9AE] mt-1">
+                      Bespoke conversion funnel, SEO, AEO &amp; GEO ready
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => openQuote('Custom Website Design & Development')}
+                    className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                    aria-label="Request a Custom Code quote"
+                  >
+                    <span className="bg-[#D4AF37] hover:bg-[#E5BE4A] text-[#16181D] font-bold text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 transform group-hover:scale-100 scale-95 transition-transform duration-200">
+                      Start Custom Build →
+                    </span>
+                  </button>
+                </div>
+
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#C99D55] block mb-1">
+                  WORLDWIDE • CUSTOM WEB &amp; GROWTH
+                </span>
+
+                <h3 className="text-lg sm:text-xl font-bold text-[#F6F2EA] mb-2 group-hover:text-[#C99D55] transition-colors">
+                  Your Website Could Be Next
+                </h3>
+
+                <p className="text-xs sm:text-sm leading-relaxed text-[#B8AFA6] mb-4">
+                  Tailored high-converting websites built for search visibility, AI answers, and real business leads—scoped via custom quote rather than fixed packages.
+                </p>
+
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {['Custom Code', 'SEO • AEO • GEO', 'Speed Optimized'].map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-[#36261B] text-[#D8CFC4] text-[10.5px] px-2.5 py-0.5 rounded font-medium border border-[#C99D55]/20"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-3.5 border-t border-[#C99D55]/20 flex items-center justify-between text-xs">
+                <span className="text-[11px] text-[#25D366] font-medium flex items-center gap-1.5 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" />
+                  Open Slot
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openQuote('Custom Website Design & Development')}
+                  className="text-[#C99D55] hover:text-[#E5C585] font-semibold text-xs transition-colors inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Request a Custom Code →</span>
+                </button>
+              </div>
+            </article>
           </div>
 
           {/* =========================================================================
